@@ -36,7 +36,7 @@ Parallel speedup can be confirmed by setting `$n_threads` to 1, 2, 3 ... up to t
 #include <atomic_bitvector.hpp>
 #include <thread>
 
-int main(void) {
+int main(int argc, char** argv) {
     atomicbitvector::atomic_bv_t x(1000);
     size_t i = 100;
     x.test(i);  // false
@@ -44,6 +44,7 @@ int main(void) {
     x.test(i);  // true
     x.reset(i); // true (returns previous value)n
     x.test(i);  // false
+    return 0;
 }
 ```
 
