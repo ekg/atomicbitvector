@@ -1,6 +1,6 @@
 # atomic bitvector
 
-An atomic bitset with size determined at compile time.
+An atomic bitset/bitvector with size determined at runtime
 
 ## overview
 
@@ -42,7 +42,7 @@ int main(void) {
     x.test(i);  // false
     x.set(i);   // false (returns previous value)
     x.test(i);  // true
-    x.reset(i); // true (returns previous value)
+    x.reset(i); // true (returns previous value)n
     x.test(i);  // false
 }
 ```
