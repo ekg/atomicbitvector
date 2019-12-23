@@ -7,10 +7,31 @@
 
 using namespace std::chrono_literals;
 
+void test_iterators(size_t n_bits) {
+    atomicbitvector::atomic_bv_t a(n_bits);
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<size_t> uniform_dist(0, n_bits-1);
+    /*
+    for (size_t i = 0; i < n_bits; ++i) {
+        a.set(i);
+    }
+    */
+    for (size_t i = 0; i < n_bits/10; ++i) {
+        a.set(uniform_dist(e1));
+    }
+    for (auto i : a) {
+        std::cerr << i << " ";
+    }
+    std::cerr << std::endl;
+    exit(1);
+}
+
 int main(int argc, char** argv) {
     assert(argc == 3);
     size_t n_bits = std::stol(argv[1]);
     size_t n_threads = std::stol(argv[2]);
+    //test_iterators(n_bits); // uncomment to run iterator tests
     std::random_device r;
     std::atomic<bool> done;
     done.store(false);
