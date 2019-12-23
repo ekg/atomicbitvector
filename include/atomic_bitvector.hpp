@@ -114,9 +114,9 @@ public:
      */
     struct it_state {
         size_t pos;
-        inline void next(const atomic_bv_t* ref) { while (pos < ref->size() && ref->test(++pos)); }
-        inline void prev(const atomic_bv_t* ref) { while (pos > 0 && ref->test(--pos)); }
-        inline void begin(const atomic_bv_t* ref) { pos = 0; }
+        inline void next(const atomic_bv_t* ref) { while (pos < ref->size() && !ref->test(pos)) { ++pos; } }
+        inline void prev(const atomic_bv_t* ref) { while (pos > 0 && !ref->test(pos)) { --pos; } }
+        inline void begin(const atomic_bv_t* ref) { pos = 0; while (pos < ref->size() && !ref->test(pos)) { ++pos; } }
         inline void end(const atomic_bv_t* ref) { pos = ref->size(); }
         inline size_t get(atomic_bv_t* ref) { return ref->test(pos); }
         inline const size_t get(const atomic_bv_t* ref) const { return ref->test(pos); }
