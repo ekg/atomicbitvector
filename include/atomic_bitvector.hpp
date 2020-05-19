@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cstddef>
 #include <limits>
+#include "iterator_tpl.h"
 
 namespace atomicbitvector {
 
@@ -53,7 +54,7 @@ public:
      * Construct a atomic_bv_t; all bits are initially false.
      */
     atomic_bv_t(size_t N) : _size(N),
-                                 kNumBlocks((N + kBitsPerBlock - 1) / kBitsPerBlock) {
+                            kNumBlocks((N + kBitsPerBlock - 1) / kBitsPerBlock) {
         data_.resize(kNumBlocks);
     }
 
@@ -107,6 +108,22 @@ public:
     constexpr size_t size() const {
         return _size;
     }
+
+    /**
+     * Iterators to run through the set values
+     */
+    struct it_state {
+        size_t pos;
+        inline void next(const atomic_bv_t* ref) { ++pos; while (pos < ref->size() && !ref->test(pos)) { ++pos; } }
+        inline void prev(const atomic_bv_t* ref) { --pos; while (pos > 0 && !ref->test(pos)) { --pos; } }
+        inline void begin(const atomic_bv_t* ref) { pos = 0; while (pos < ref->size() && !ref->test(pos)) { ++pos; } }
+        inline void end(const atomic_bv_t* ref) { pos = ref->size(); }
+        inline size_t get(atomic_bv_t* ref) { return pos; }
+        inline const size_t get(const atomic_bv_t* ref) const { return ref->test(pos); }
+        inline bool cmp(const it_state& s) const { return pos != s.pos; }
+    };
+    SETUP_ITERATORS(atomic_bv_t, size_t, it_state);
+    SETUP_REVERSE_ITERATORS(atomic_bv_t, size_t, it_state);
 
 private:
     // Pick the largest lock-free type available
