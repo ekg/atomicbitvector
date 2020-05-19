@@ -3,7 +3,8 @@
 cmake_minimum_required(VERSION 3.1)
 
 # Project's name
-project(bdsg)
+project(atomicbitvector)
+
 # We build using c++14
 set(CMAKE_CXX_STANDARD 14)
 
