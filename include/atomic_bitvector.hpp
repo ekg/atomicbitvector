@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cstddef>
 #include <limits>
+#include <stdexcept>
 #include "iterator_tpl.h"
 
 namespace atomicbitvector {
@@ -57,6 +58,59 @@ public:
                             kNumBlocks((N + kBitsPerBlock - 1) / kBitsPerBlock) {
         data_.resize(kNumBlocks);
     }
+
+private:
+	template<class CharT>
+	void _copy_from_ptr(const CharT* str, typename std::basic_string<CharT>::size_type n, CharT zero, CharT one)
+	{
+		if (n != std::basic_string<CharT>::npos && str != nullptr)
+		{
+			_size = n;
+			kNumBlocks = (n + kBitsPerBlock - 1) / kBitsPerBlock;
+			data_.resize(kNumBlocks);
+			for (auto ii{typename std::basic_string<CharT>::size_type(0)}; ii < n; ++ii)
+			{
+				if (*(str + ii) == one)
+					set(ii);
+				else if (*(str + ii) == zero)
+					reset(ii);
+				else
+					throw std::invalid_argument(str);
+			}
+		}
+		else
+			throw std::out_of_range("invalid bitstring");
+	}
+
+public:
+	template<class CharT>
+	explicit atomic_bv_t(const CharT* str, typename std::basic_string<CharT>::size_type n = std::basic_string<CharT>::npos,
+	  CharT zero = CharT('0'), CharT one = CharT('1'))
+	{
+		_copy_from_ptr(str, n, zero, one);
+	}
+
+	template<class CharT = char, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT>>
+	explicit atomic_bv_t(const std::basic_string<CharT,Traits,Allocator>& str, CharT zero = CharT('0'), CharT one = CharT('1'))
+	{
+		_copy_from_ptr(str.c_str(), str.size(), zero, one);
+	}
+
+	template<class CharT = char, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT>>
+	std::basic_string<CharT,Traits,Allocator> to_string(CharT zero = CharT('0'), CharT one = CharT('1')) const
+	{
+		std::basic_string<CharT,Traits,Allocator> str(_size, zero);
+		for (size_t ii{}; ii < _size; ++ii)
+			if (test(ii))
+				str[ii] = one;
+		return str;
+	}
+
+	template <class CharT, class Traits>
+	friend std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const atomic_bv_t& what)
+	{
+		return os << what.to_string();
+	}
 
     /**
      * Set bit idx to true, using the given memory order. Returns the
@@ -180,5 +234,5 @@ inline bool atomic_bv_t::test(size_t idx, std::memory_order order) const {
 inline bool atomic_bv_t::operator[](size_t idx) const {
     return test(idx);
 }
-    
+
 }

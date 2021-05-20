@@ -17,7 +17,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # assumes clang build
   # we can't reliably detect when we're using clang, so for the time being we assume
   # TODO: can't we though?
-  
+
   # adapted from https://stackoverflow.com/questions/46414660/macos-cmake-and-openmp
   # find_package(OpenMP) does not work reliably on macOS, so we do its work ourselves
   set (OpenMP_C "${CMAKE_C_COMPILER}")
@@ -29,21 +29,21 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set (OpenMP_libomp_LIBRARY "omp")
   set (OpenMP_libgomp_LIBRARY "gomp")
   set (OpenMP_libiomp5_LIBRARY "iomp5")
-  
+
   # and now add the OpenMP parameters to the compile flags
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} -lomp")
-  
+
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
   find_package(OpenMP REQUIRED)
-  
+
   # add the flags it detects to the compile flags
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -fopenmp")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  
+
 endif()
 
 # Set the output folder where your program will be created
@@ -70,6 +70,9 @@ set(atomicbitvector_INCLUDES
 add_executable(test_atomicbitvector
   ${CMAKE_SOURCE_DIR}/src/main.cpp)
 target_include_directories(test_atomicbitvector PUBLIC ${atomicbitvector_INCLUDES})
+add_executable(test_atomicbitvector1
+  ${CMAKE_SOURCE_DIR}/src/main1.cpp)
+target_include_directories(test_atomicbitvector1 PUBLIC ${atomicbitvector_INCLUDES})
 
 if (APPLE)
 elseif (TRUE)
