@@ -83,6 +83,9 @@ private:
 	}
 
 public:
+    /**
+     * Construct a atomic_bv_t from char *
+     */
 	template<class CharT>
 	explicit atomic_bv_t(const CharT* str, typename std::basic_string<CharT>::size_type n = std::basic_string<CharT>::npos,
 	  CharT zero = CharT('0'), CharT one = CharT('1'))
@@ -90,12 +93,18 @@ public:
 		_copy_from_ptr(str, n, zero, one);
 	}
 
+    /**
+     * Construct a atomic_bv_t from std::string
+     */
 	template<class CharT = char, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT>>
 	explicit atomic_bv_t(const std::basic_string<CharT,Traits,Allocator>& str, CharT zero = CharT('0'), CharT one = CharT('1'))
 	{
 		_copy_from_ptr(str.c_str(), str.size(), zero, one);
 	}
 
+    /**
+     * Construct std::string from bitset
+     */
 	template<class CharT = char, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT>>
 	std::basic_string<CharT,Traits,Allocator> to_string(CharT zero = CharT('0'), CharT one = CharT('1')) const
 	{
@@ -106,6 +115,9 @@ public:
 		return str;
 	}
 
+    /**
+     * sendto friend
+     */
 	template <class CharT, class Traits>
 	friend std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const atomic_bv_t& what)
 	{

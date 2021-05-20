@@ -15,6 +15,12 @@ int main(int argc, char *argv[])
 	string xs{argv[1]};
 	atomicbitvector::atomic_bv_t x(xs.c_str(), xs.size());
 	cout << x << endl;
+	atomicbitvector::atomic_bv_t x1(xs);
+	cout << x1 << endl;
+
+	bitset<16> x2(xs);
+	cout << xs << endl;
+
 	return 0;
 }
 
