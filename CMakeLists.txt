@@ -14,26 +14,34 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-  # assumes clang build
-  # we can't reliably detect when we're using clang, so for the time being we assume
-  # TODO: can't we though?
-  
   # adapted from https://stackoverflow.com/questions/46414660/macos-cmake-and-openmp
   # find_package(OpenMP) does not work reliably on macOS, so we do its work ourselves
   set (OpenMP_C "${CMAKE_C_COMPILER}")
-  set (OpenMP_C_FLAGS " -Xpreprocessor -fopenmp -I/opt/local/include/libomp -I/usr/local/include -L/opt/local/lib/libomp -L/usr/local/lib")
-  set (OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
   set (OpenMP_CXX "${CMAKE_CXX_COMPILER}")
-  set (OpenMP_CXX_FLAGS " -Xpreprocessor -fopenmp -I/opt/local/include/libomp -I/usr/local/include -L/opt/local/lib/libomp -L/usr/local/lib")
-  set (OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")
-  set (OpenMP_libomp_LIBRARY "omp")
-  set (OpenMP_libgomp_LIBRARY "gomp")
-  set (OpenMP_libiomp5_LIBRARY "iomp5")
-  
+
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set (OpenMP_C_FLAGS " -Xpreprocessor -fopenmp -I/opt/local/include/libomp -I/usr/local/include -L/opt/local/lib/libomp -L/usr/local/lib")
+    set (OpenMP_CXX_FLAGS " -Xpreprocessor -fopenmp -I/opt/local/include/libomp -I/usr/local/include -L/opt/local/lib/libomp -L/usr/local/lib")
+    set (OpenMP_C_LIB_NAMES "libomp")
+    set (OpenMP_CXX_LIB_NAMES "libomp")
+    set (OpenMP_libomp_LIBRARY "omp")
+  else()
+    set (OpenMP_C_FLAGS " -Xpreprocessor -fopenmp")
+    set (OpenMP_CXX_FLAGS " -Xpreprocessor -fopenmp")
+    set (OpenMP_C_LIB_NAMES "libgomp")
+    set (OpenMP_CXX_LIB_NAMES  "libgomp")
+    set (OpenMP_libgomp_LIBRARY "gomp")
+  endif()
+
   # and now add the OpenMP parameters to the compile flags
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} -lomp")
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} -lomp")
+  else()
+  # When using GCC, -fopenmp ensures that libgomp is linked with.
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+  endif()
   
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
